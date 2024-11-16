@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -40,6 +51,7 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cookieWrapper = void 0;
 var singleton_1 = require("../utils/singleton");
+var DEFAULT_PATH = '/';
 var CookieWrapper = function () {
     var _classDecorators = [singleton_1.Singleton];
     var _classDescriptor;
@@ -48,8 +60,56 @@ var CookieWrapper = function () {
     var CookieWrapper = _classThis = /** @class */ (function () {
         function CookieWrapper_1() {
         }
-        CookieWrapper_1.prototype.get = function (key, options) {
-            return '' + key;
+        CookieWrapper_1.prototype.get = function (name) {
+            if (!document)
+                return;
+            var value = "; ".concat(document.cookie);
+            var parts = value.split("; ".concat(name, "="));
+            if (parts.length === 2) {
+                return decodeURIComponent(parts.pop().split(';').shift());
+            }
+            return '';
+        };
+        CookieWrapper_1.prototype.set = function (name, value, options) {
+            if (options === void 0) { options = {}; }
+            if (!document)
+                return;
+            var modifiedOptions = __assign({ path: DEFAULT_PATH }, options);
+            if (modifiedOptions.expires && modifiedOptions.expires instanceof Date) {
+                modifiedOptions.expires = modifiedOptions.expires.toUTCString();
+            }
+            var updatedCookie = encodeURIComponent(name) + '=' + encodeURIComponent(value);
+            for (var optionKey in modifiedOptions) {
+                updatedCookie += '; ' + optionKey;
+                var optionValue = modifiedOptions[optionKey];
+                if (optionValue !== true) {
+                    updatedCookie += '=' + optionValue;
+                }
+            }
+            document.cookie = updatedCookie;
+        };
+        CookieWrapper_1.prototype.remove = function (name, options) {
+            if (options === void 0) { options = {}; }
+            this.set(name, '', __assign(__assign({}, options), { 'max-age': -1 }));
+        };
+        CookieWrapper_1.prototype.getByRegexp = function (regexp) {
+            var _this = this;
+            if (!document)
+                return;
+            var allCookies = document.cookie.split(';').map(function (item) { return item.split('=')[0].trim(); });
+            var foundCookies = allCookies.filter(function (item) { return item.match(regexp); });
+            return foundCookies.map(function (name) { return ({
+                name: name,
+                value: _this.get(name)
+            }); });
+        };
+        CookieWrapper_1.prototype.removeByRegexp = function (regexp, options) {
+            if (options === void 0) { options = {}; }
+            var foundCookies = this.getByRegexp(regexp);
+            for (var _i = 0, foundCookies_1 = foundCookies; _i < foundCookies_1.length; _i++) {
+                var name_1 = foundCookies_1[_i].name;
+                this.remove(name_1, options);
+            }
         };
         return CookieWrapper_1;
     }());

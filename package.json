@@ -1,7 +1,7 @@
 {
   "name": "@yurishvetsov/cookie-wrapper",
-  "version": "0.0.1-beta.0",
-  "description": "wrapper over browser cookies",
+  "version": "0.0.1-beta.1",
+  "description": "Wrapper over browser cookies",
   "type": "module",
   "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",
@@ -9,9 +9,10 @@
     "build"
   ],
   "scripts": {
-    "build": "npm run build:esm && npm run build:cjs",
+    "build": "npm run test && npm run build:esm && npm run build:cjs",
     "build:esm": "tsc",
-    "build:cjs": "tsc --module commonjs --outDir build/cjs"
+    "build:cjs": "tsc --module commonjs --outDir build/cjs",
+    "test": "jest"
   },
   "keywords": [
     "cookie"
@@ -19,6 +20,15 @@
   "author": "Yuri Shvetsov",
   "license": "ISC",
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.9.0",
+    "@types/supertest": "^6.0.2",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   }
 }
