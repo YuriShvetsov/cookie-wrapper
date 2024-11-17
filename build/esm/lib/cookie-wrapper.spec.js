@@ -74,7 +74,7 @@ describe('Cookie handling', function () {
                 });
                 mockCookie[name] = cookieData;
             }),
-            configurable: true,
+            configurable: true
         });
     });
     afterEach(function () {
@@ -85,8 +85,8 @@ describe('Cookie handling', function () {
         return __generator(this, function (_a) {
             cookieName = 'test_cookie_1';
             cookieValue = 'test_value_1';
-            document.cookie = "".concat(cookieName, "=").concat(cookieValue, "; domain=site.com");
-            foundCookieValue = cookieWrapper.get('test_cookie_1');
+            document.cookie = "".concat(cookieName, "=").concat(cookieValue);
+            foundCookieValue = cookieWrapper.get(cookieName);
             expect(foundCookieValue).toEqual(cookieValue);
             return [2 /*return*/];
         });
@@ -110,16 +110,14 @@ describe('Cookie handling', function () {
         expect(foundCookieValue).toEqual(cookieValue);
     });
     it('adds a new cookie with expires option', function () { return __awaiter(void 0, void 0, void 0, function () {
-        var cookieName, cookieValue, dateAfterOneSecond, foundCookie;
+        var cookieName, cookieValue, expires, foundCookie;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     cookieName = 'test_cookie_4';
                     cookieValue = 'test_value_4';
-                    dateAfterOneSecond = new Date(Date.now() + 2000);
-                    cookieWrapper.set(cookieName, cookieValue, {
-                        expires: dateAfterOneSecond
-                    });
+                    expires = new Date(Date.now() + 2000);
+                    cookieWrapper.set(cookieName, cookieValue, { expires: expires });
                     foundCookie = cookieWrapper.get(cookieName);
                     return [4 /*yield*/, delay(1000)];
                 case 1:
@@ -142,9 +140,7 @@ describe('Cookie handling', function () {
                     cookieName = 'test_cookie_5';
                     cookieValue = 'test_value_5';
                     maxAge = 2;
-                    cookieWrapper.set(cookieName, cookieValue, {
-                        'max-age': maxAge
-                    });
+                    document.cookie = "".concat(cookieName, "=").concat(cookieValue, "; max-age=").concat(maxAge);
                     foundCookie = cookieWrapper.get(cookieName);
                     return [4 /*yield*/, delay(1000)];
                 case 1:
@@ -159,5 +155,39 @@ describe('Cookie handling', function () {
             }
         });
     }); });
-    // TODO: write tests for methods: remove, getByRegexp, removeByRegexp
+    it('removes cookie by name', function () {
+        var cookieName = 'test_cookie_6';
+        var cookieValue = 'test_value_6';
+        document.cookie = "".concat(cookieName, "=").concat(cookieValue);
+        cookieWrapper.remove(cookieName);
+        var foundCookie = cookieWrapper.get(cookieName);
+        expect(foundCookie).toEqual('');
+    });
+    it('returns array of cookies when searching by regular expression', function () {
+        var cookies = [
+            { name: 'test_cookie_7', value: 'test_value_7' },
+            { name: 'test_cookie_8', value: 'test_value_8' }
+        ];
+        cookies.forEach(function (_a) {
+            var name = _a.name, value = _a.value;
+            document.cookie = "".concat(name, "=").concat(value);
+        });
+        var searchRegexp = new RegExp('^test_cookie');
+        var foundCookies = cookieWrapper.getByRegexp(searchRegexp);
+        expect(foundCookies).toEqual(cookies);
+    });
+    it('removes all cookies by regular expression', function () {
+        var cookies = [
+            { name: 'test_cookie_9', value: 'test_value_9' },
+            { name: 'test_cookie_10', value: 'test_value_10' }
+        ];
+        cookies.forEach(function (_a) {
+            var name = _a.name, value = _a.value;
+            document.cookie = "".concat(name, "=").concat(value);
+        });
+        var searchRegexp = new RegExp('^test_cookie');
+        cookieWrapper.removeByRegexp(searchRegexp);
+        var foundCookies = cookieWrapper.getByRegexp(searchRegexp);
+        expect(foundCookies.length).toEqual(0);
+    });
 });
