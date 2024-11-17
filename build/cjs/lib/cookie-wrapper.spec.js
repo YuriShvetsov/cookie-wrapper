@@ -82,7 +82,18 @@ describe('Cookie handling', function () {
     afterEach(function () {
         jest.clearAllMocks();
     });
-    it('returns the correct value of the cookies item', function () { return __awaiter(void 0, void 0, void 0, function () {
+    it('throws error when name parameter is not a string, regular expression, or undefined', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var cookieName, cookieValue, t;
+        return __generator(this, function (_a) {
+            cookieName = 'test_cookie_1';
+            cookieValue = 'test_value_1';
+            document.cookie = "".concat(cookieName, "=").concat(cookieValue);
+            t = function () { return cookie_wrapper_1.cookieWrapper.get(100); };
+            expect(t).toThrow(Error);
+            return [2 /*return*/];
+        });
+    }); });
+    it('returns the correct value', function () { return __awaiter(void 0, void 0, void 0, function () {
         var cookieName, cookieValue, foundCookieValue;
         return __generator(this, function (_a) {
             cookieName = 'test_cookie_1';
@@ -93,10 +104,10 @@ describe('Cookie handling', function () {
             return [2 /*return*/];
         });
     }); });
-    it('returns an empty string', function () {
+    it('returns undefined', function () {
         document.cookie = 'test_cookie_2=test-value-2';
         var cookieValue = cookie_wrapper_1.cookieWrapper.get('some_cookie');
-        expect(cookieValue).toEqual('');
+        expect(cookieValue).toBeUndefined();
     });
     it('adds a new cookie', function () {
         var cookieName = 'test_cookie_3';
@@ -129,7 +140,7 @@ describe('Cookie handling', function () {
                 case 2:
                     _a.sent();
                     foundCookie = cookie_wrapper_1.cookieWrapper.get(cookieName);
-                    expect(foundCookie).toEqual('');
+                    expect(foundCookie).toBeUndefined();
                     return [2 /*return*/];
             }
         });
@@ -152,7 +163,7 @@ describe('Cookie handling', function () {
                 case 2:
                     _a.sent();
                     foundCookie = cookie_wrapper_1.cookieWrapper.get(cookieName);
-                    expect(foundCookie).toEqual('');
+                    expect(foundCookie).toBeUndefined();
                     return [2 /*return*/];
             }
         });
@@ -163,9 +174,9 @@ describe('Cookie handling', function () {
         document.cookie = "".concat(cookieName, "=").concat(cookieValue);
         cookie_wrapper_1.cookieWrapper.remove(cookieName);
         var foundCookie = cookie_wrapper_1.cookieWrapper.get(cookieName);
-        expect(foundCookie).toEqual('');
+        expect(foundCookie).toBeUndefined();
     });
-    it('returns array of cookies when searching by regular expression', function () {
+    it('returns all available cookies', function () {
         var cookies = [
             { name: 'test_cookie_7', value: 'test_value_7' },
             { name: 'test_cookie_8', value: 'test_value_8' }
@@ -174,11 +185,10 @@ describe('Cookie handling', function () {
             var name = _a.name, value = _a.value;
             document.cookie = "".concat(name, "=").concat(value);
         });
-        var searchRegexp = new RegExp('^test_cookie');
-        var foundCookies = cookie_wrapper_1.cookieWrapper.getByRegexp(searchRegexp);
-        expect(foundCookies).toEqual(cookies);
+        var allCookies = cookie_wrapper_1.cookieWrapper.get();
+        expect(allCookies).toEqual(cookies);
     });
-    it('removes all cookies by regular expression', function () {
+    it('returns array of cookies when searching by regular expression', function () {
         var cookies = [
             { name: 'test_cookie_9', value: 'test_value_9' },
             { name: 'test_cookie_10', value: 'test_value_10' }
@@ -188,8 +198,21 @@ describe('Cookie handling', function () {
             document.cookie = "".concat(name, "=").concat(value);
         });
         var searchRegexp = new RegExp('^test_cookie');
-        cookie_wrapper_1.cookieWrapper.removeByRegexp(searchRegexp);
-        var foundCookies = cookie_wrapper_1.cookieWrapper.getByRegexp(searchRegexp);
+        var foundCookies = cookie_wrapper_1.cookieWrapper.get(searchRegexp);
+        expect(foundCookies).toEqual(cookies);
+    });
+    it('removes all cookies by regular expression', function () {
+        var cookies = [
+            { name: 'test_cookie_11', value: 'test_value_11' },
+            { name: 'test_cookie_12', value: 'test_value_12' }
+        ];
+        cookies.forEach(function (_a) {
+            var name = _a.name, value = _a.value;
+            document.cookie = "".concat(name, "=").concat(value);
+        });
+        var searchRegexp = new RegExp('^test_cookie');
+        cookie_wrapper_1.cookieWrapper.remove(searchRegexp);
+        var foundCookies = cookie_wrapper_1.cookieWrapper.get(searchRegexp);
         expect(foundCookies.length).toEqual(0);
     });
 });

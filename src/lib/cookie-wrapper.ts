@@ -7,17 +7,22 @@ const DEFAULT_PATH = '/';
 class CookieWrapper implements ICookieWrapper {
   constructor() {}
 
-  get(name: string) {
+  get(name?: string | RegExp | any) {
     if (!document) return;
 
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-
-    if (parts.length === 2) {
-      return decodeURIComponent(parts.pop().split(';').shift());
+    if (!name) {
+      return this.getAll();
     }
 
-    return '';
+    if (typeof name === 'string') {
+      return this.getByString(name);
+    }
+
+    if (name instanceof RegExp) {
+      return this.getByRegexp(name);
+    }
+
+    throw new Error('Invalid name parameter');
   }
 
   set(name: string, value: any, options = {}) {
@@ -47,23 +52,43 @@ class CookieWrapper implements ICookieWrapper {
     document.cookie = updatedCookie;
   }
 
-  remove(name: string, options: ICookieOptions = {}) {
+  remove(name: string | RegExp | any, options: ICookieOptions = {}) {
+    if (name instanceof RegExp) {
+      this.removeByRegexp(name, options);
+      return;
+    }
+
     this.set(name, '', { ...options, 'max-age': -1 });
   }
 
-  getByRegexp(regexp: RegExp) {
+  private getAll() {
     if (!document) return;
 
-    const allCookies: string[] = document.cookie.split(';').map((item) => item.split('=')[0].trim());
-    const foundCookies: string[] = allCookies.filter((item) => item.match(regexp));
+    const allCookies = document.cookie.split('; ').map((item) => item.split('='));
 
-    return foundCookies.map((name: string) => ({
-      name,
-      value: this.get(name)
-    }));
+    return allCookies.map(([name, value]) => ({ name, value }));
   }
 
-  removeByRegexp(regexp: RegExp, options = {}) {
+  private getByString(name: string) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+
+    if (parts.length === 2) {
+      return decodeURIComponent(parts.pop().split(';').shift());
+    }
+
+    return undefined;
+  }
+
+  private getByRegexp(regexp: RegExp) {
+    if (!document) return;
+
+    const allCookies = this.getAll();
+
+    return allCookies.filter(({ name }) => name.match(regexp));
+  }
+
+  private removeByRegexp(regexp: RegExp, options = {}) {
     const foundCookies = this.getByRegexp(regexp);
 
     for (const { name } of foundCookies) {

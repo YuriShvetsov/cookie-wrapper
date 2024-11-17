@@ -63,12 +63,16 @@ var CookieWrapper = function () {
         CookieWrapper_1.prototype.get = function (name) {
             if (!document)
                 return;
-            var value = "; ".concat(document.cookie);
-            var parts = value.split("; ".concat(name, "="));
-            if (parts.length === 2) {
-                return decodeURIComponent(parts.pop().split(';').shift());
+            if (!name) {
+                return this.getAll();
             }
-            return '';
+            if (typeof name === 'string') {
+                return this.getByString(name);
+            }
+            if (name instanceof RegExp) {
+                return this.getByRegexp(name);
+            }
+            throw new Error('Invalid name parameter');
         };
         CookieWrapper_1.prototype.set = function (name, value, options) {
             if (options === void 0) { options = {}; }
@@ -90,18 +94,37 @@ var CookieWrapper = function () {
         };
         CookieWrapper_1.prototype.remove = function (name, options) {
             if (options === void 0) { options = {}; }
+            if (name instanceof RegExp) {
+                this.removeByRegexp(name, options);
+                return;
+            }
             this.set(name, '', __assign(__assign({}, options), { 'max-age': -1 }));
         };
-        CookieWrapper_1.prototype.getByRegexp = function (regexp) {
-            var _this = this;
+        CookieWrapper_1.prototype.getAll = function () {
             if (!document)
                 return;
-            var allCookies = document.cookie.split(';').map(function (item) { return item.split('=')[0].trim(); });
-            var foundCookies = allCookies.filter(function (item) { return item.match(regexp); });
-            return foundCookies.map(function (name) { return ({
-                name: name,
-                value: _this.get(name)
-            }); });
+            var allCookies = document.cookie.split('; ').map(function (item) { return item.split('='); });
+            return allCookies.map(function (_a) {
+                var name = _a[0], value = _a[1];
+                return ({ name: name, value: value });
+            });
+        };
+        CookieWrapper_1.prototype.getByString = function (name) {
+            var value = "; ".concat(document.cookie);
+            var parts = value.split("; ".concat(name, "="));
+            if (parts.length === 2) {
+                return decodeURIComponent(parts.pop().split(';').shift());
+            }
+            return undefined;
+        };
+        CookieWrapper_1.prototype.getByRegexp = function (regexp) {
+            if (!document)
+                return;
+            var allCookies = this.getAll();
+            return allCookies.filter(function (_a) {
+                var name = _a.name;
+                return name.match(regexp);
+            });
         };
         CookieWrapper_1.prototype.removeByRegexp = function (regexp, options) {
             if (options === void 0) { options = {}; }

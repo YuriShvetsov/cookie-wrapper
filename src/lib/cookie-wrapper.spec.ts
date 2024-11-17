@@ -50,7 +50,18 @@ describe('Cookie handling', () => {
     jest.clearAllMocks();
   });
 
-  it('returns the correct value of the cookies item', async () => {
+  it('throws error when name parameter is not a string, regular expression, or undefined', async () => {
+    const cookieName = 'test_cookie_1';
+    const cookieValue = 'test_value_1';
+
+    document.cookie = `${cookieName}=${cookieValue}`;
+
+    const t = () => cookieWrapper.get(100);
+
+    expect(t).toThrow(Error);
+  });
+
+  it('returns the correct value', async () => {
     const cookieName = 'test_cookie_1';
     const cookieValue = 'test_value_1';
 
@@ -61,12 +72,12 @@ describe('Cookie handling', () => {
     expect(foundCookieValue).toEqual(cookieValue);
   });
 
-  it('returns an empty string', () => {
+  it('returns undefined', () => {
     document.cookie = 'test_cookie_2=test-value-2';
 
     const cookieValue = cookieWrapper.get('some_cookie');
 
-    expect(cookieValue).toEqual('');
+    expect(cookieValue).toBeUndefined();
   });
 
   it('adds a new cookie', () => {
@@ -103,7 +114,7 @@ describe('Cookie handling', () => {
 
     foundCookie = cookieWrapper.get(cookieName);
 
-    expect(foundCookie).toEqual('');
+    expect(foundCookie).toBeUndefined();
   });
 
   it('adds a new cookie with max-age option', async () => {
@@ -123,7 +134,7 @@ describe('Cookie handling', () => {
 
     foundCookie = cookieWrapper.get(cookieName);
 
-    expect(foundCookie).toEqual('');
+    expect(foundCookie).toBeUndefined();
   });
 
   it('removes cookie by name', () => {
@@ -136,10 +147,10 @@ describe('Cookie handling', () => {
 
     const foundCookie = cookieWrapper.get(cookieName);
 
-    expect(foundCookie).toEqual('');
+    expect(foundCookie).toBeUndefined();
   });
 
-  it('returns array of cookies when searching by regular expression', () => {
+  it('returns all available cookies', () => {
     const cookies = [
       { name: 'test_cookie_7', value: 'test_value_7' },
       { name: 'test_cookie_8', value: 'test_value_8' }
@@ -149,13 +160,12 @@ describe('Cookie handling', () => {
       document.cookie = `${name}=${value}`;
     });
 
-    const searchRegexp = new RegExp('^test_cookie');
-    const foundCookies = cookieWrapper.getByRegexp(searchRegexp);
+    const allCookies = cookieWrapper.get();
 
-    expect(foundCookies).toEqual(cookies);
+    expect(allCookies).toEqual(cookies);
   });
 
-  it('removes all cookies by regular expression', () => {
+  it('returns array of cookies when searching by regular expression', () => {
     const cookies = [
       { name: 'test_cookie_9', value: 'test_value_9' },
       { name: 'test_cookie_10', value: 'test_value_10' }
@@ -166,10 +176,26 @@ describe('Cookie handling', () => {
     });
 
     const searchRegexp = new RegExp('^test_cookie');
+    const foundCookies = cookieWrapper.get(searchRegexp);
 
-    cookieWrapper.removeByRegexp(searchRegexp);
+    expect(foundCookies).toEqual(cookies);
+  });
 
-    const foundCookies = cookieWrapper.getByRegexp(searchRegexp);
+  it('removes all cookies by regular expression', () => {
+    const cookies = [
+      { name: 'test_cookie_11', value: 'test_value_11' },
+      { name: 'test_cookie_12', value: 'test_value_12' }
+    ];
+
+    cookies.forEach(({ name, value }) => {
+      document.cookie = `${name}=${value}`;
+    });
+
+    const searchRegexp = new RegExp('^test_cookie');
+
+    cookieWrapper.remove(searchRegexp);
+
+    const foundCookies = cookieWrapper.get(searchRegexp);
 
     expect(foundCookies.length).toEqual(0);
   });
