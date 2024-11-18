@@ -104,9 +104,9 @@ describe('Cookie handling', () => {
 
     cookieWrapper.set(cookieName, cookieValue, { expires });
 
-    let foundCookie = cookieWrapper.get(cookieName);
-
     await delay(1000);
+
+    let foundCookie = cookieWrapper.get(cookieName);
 
     expect(foundCookie).toEqual(cookieValue);
 
@@ -124,9 +124,9 @@ describe('Cookie handling', () => {
 
     document.cookie = `${cookieName}=${cookieValue}; max-age=${maxAge}`;
 
-    let foundCookie = cookieWrapper.get(cookieName);
-
     await delay(1000);
+
+    let foundCookie = cookieWrapper.get(cookieName);
 
     expect(foundCookie).toEqual(cookieValue);
 

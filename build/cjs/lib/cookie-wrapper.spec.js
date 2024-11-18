@@ -131,10 +131,10 @@ describe('Cookie handling', function () {
                     cookieValue = 'test_value_4';
                     expires = new Date(Date.now() + 2000);
                     cookie_wrapper_1.cookieWrapper.set(cookieName, cookieValue, { expires: expires });
-                    foundCookie = cookie_wrapper_1.cookieWrapper.get(cookieName);
                     return [4 /*yield*/, (0, delay_1.delay)(1000)];
                 case 1:
                     _a.sent();
+                    foundCookie = cookie_wrapper_1.cookieWrapper.get(cookieName);
                     expect(foundCookie).toEqual(cookieValue);
                     return [4 /*yield*/, (0, delay_1.delay)(2000)];
                 case 2:
@@ -154,10 +154,10 @@ describe('Cookie handling', function () {
                     cookieValue = 'test_value_5';
                     maxAge = 2;
                     document.cookie = "".concat(cookieName, "=").concat(cookieValue, "; max-age=").concat(maxAge);
-                    foundCookie = cookie_wrapper_1.cookieWrapper.get(cookieName);
                     return [4 /*yield*/, (0, delay_1.delay)(1000)];
                 case 1:
                     _a.sent();
+                    foundCookie = cookie_wrapper_1.cookieWrapper.get(cookieName);
                     expect(foundCookie).toEqual(cookieValue);
                     return [4 /*yield*/, (0, delay_1.delay)(2000)];
                 case 2:

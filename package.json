@@ -1,6 +1,6 @@
 {
   "name": "@yurishvetsov/cookie-wrapper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Wrapper over browser cookies",
   "type": "module",
   "main": "./build/cjs/index.js",
