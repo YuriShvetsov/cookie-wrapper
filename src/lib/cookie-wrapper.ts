@@ -1,5 +1,5 @@
 import { Singleton } from '../utils/singleton';
-import { ICookieWrapper, ICookieOptions } from './cookie-wrapper.interface';
+import { ICookieWrapper, ICookieOptions } from './types';
 
 const DEFAULT_PATH = '/';
 

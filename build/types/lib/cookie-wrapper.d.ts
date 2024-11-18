@@ -1,4 +1,4 @@
-import { ICookieWrapper, ICookieOptions } from './cookie-wrapper.interface';
+import { ICookieWrapper, ICookieOptions } from './types';
 declare class CookieWrapper implements ICookieWrapper {
     constructor();
     get(name?: string | RegExp | any): string | {
